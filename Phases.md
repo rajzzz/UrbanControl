@@ -4,8 +4,6 @@
 
 - Define key use case (e.g., school placement).
 - Identify available datasets (e.g., census, OSM).
-- Create clickable Figma prototype.
-- Conduct 3–5 expert interviews (if time permits).
 
 ## Phase 2: Core MVP Engine (2–3 Sprints)
 
