@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "mock_parks",
+"features": [
+{ "type": "Feature", "properties": { "name": "Park A" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 77.105, 28.505 ], [ 77.105, 28.51 ], [ 77.11, 28.51 ], [ 77.11, 28.505 ], [ 77.105, 28.505 ] ] ] } },
+{ "type": "Feature", "properties": { "name": "Park B" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 77.135, 28.505 ], [ 77.135, 28.51 ], [ 77.14, 28.51 ], [ 77.14, 28.505 ], [ 77.135, 28.505 ] ] ] } }
+]
+}

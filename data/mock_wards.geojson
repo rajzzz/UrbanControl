@@ -1,0 +1,9 @@
+{
+"type": "FeatureCollection",
+"name": "mock_wards",
+"features": [
+{ "type": "Feature", "properties": { "ward_name": "Ward A", "population": 25000, "green_area_sqm": 120000, "green_per_person": 4.8 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 77.1, 28.5 ], [ 77.1, 28.52 ], [ 77.12, 28.52 ], [ 77.12, 28.5 ], [ 77.1, 28.5 ] ] ] } },
+{ "type": "Feature", "properties": { "ward_name": "Ward B", "population": 18000, "green_area_sqm": 220000, "green_per_person": 12.222222222222221 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 77.13, 28.5 ], [ 77.13, 28.52 ], [ 77.15, 28.52 ], [ 77.15, 28.5 ], [ 77.13, 28.5 ] ] ] } },
+{ "type": "Feature", "properties": { "ward_name": "Ward C", "population": 30000, "green_area_sqm": 200000, "green_per_person": 6.666666666666667 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 77.16, 28.5 ], [ 77.16, 28.52 ], [ 77.18, 28.52 ], [ 77.18, 28.5 ], [ 77.16, 28.5 ] ] ] } }
+]
+}

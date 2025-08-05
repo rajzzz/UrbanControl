@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "mock_proposed_parks",
+"features": [
+{ "type": "Feature", "properties": { "score": 0.85 }, "geometry": { "type": "Point", "coordinates": [ 77.115, 28.506 ] } },
+{ "type": "Feature", "properties": { "score": 0.92 }, "geometry": { "type": "Point", "coordinates": [ 77.165, 28.508 ] } }
+]
+}
