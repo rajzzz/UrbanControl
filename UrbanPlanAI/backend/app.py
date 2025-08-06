@@ -101,7 +101,7 @@ def analyze_image():
         image = Image.open(io.BytesIO(response.content))
 
         # --- Call Gemini API ---
-        model = genai.GenerativeModel('gemini-2.5-pro')
+        model = genai.GenerativeModel('gemini-1.5-pro-latest')
         # The API expects a list of content parts [prompt, image]
         api_response = model.generate_content([PROMPT, image])
 
