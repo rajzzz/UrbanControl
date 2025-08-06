@@ -118,6 +118,8 @@ def analyze_image():
     except requests.exceptions.RequestException as e:
         return jsonify({"error": f"Failed to download image: {e}"}), 500
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return jsonify({"error": "An error occurred during analysis."}), 500
+        # For debugging, let's see the REAL error on the frontend.
+        error_message = f"An error occurred during analysis: {str(e)}"
+        print(error_message) # Still print to logs
+        return jsonify({"error": error_message}), 500
 
