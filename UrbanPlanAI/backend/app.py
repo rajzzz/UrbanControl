@@ -7,6 +7,7 @@ import google.generativeai as genai
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
+
 # We don't strictly need PIL or io anymore for this fix, but it's fine to leave them.
 from PIL import Image
 import io
@@ -16,7 +17,8 @@ load_dotenv()
 
 # --- Configuration ---
 app = Flask(__name__)
-CORS(app, resources={r"/analyze": {"origins": "https://urban-infra.vercel.app"}}, supports_credentials=True)
+
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=False)
 
 
 # Configure the Gemini API
@@ -24,6 +26,17 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY not found. Please set it in your .env file.")
 genai.configure(api_key=GEMINI_API_KEY)
+
+
+@app.before_request
+def handle_options():
+    if request.method == "OPTIONS":
+        response = app.make_default_options_response()
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+        return response
+
 
 # --- Gemini Prompt Engineering ---
 PROMPT = """
@@ -75,18 +88,22 @@ Respond in a strict JSON format. Do not include any text or markdown formatting 
 }
 """
 
+
 # --- API Endpoint ---
-@app.route('/')
+
+
+@app.route("/")
 def status():
     return jsonify({"status": "Backend is running"}), 200
 
-@app.route('/analyze', methods=['POST'])
+
+@app.route("/analyze", methods=["POST"])
 def analyze_image():
     data = request.get_json()
-    if not data or 'imageUrl' not in data:
+    if not data or "imageUrl" not in data:
         return jsonify({"error": "imageUrl not provided"}), 400
 
-    image_url = data['imageUrl']
+    image_url = data["imageUrl"]
 
     try:
         # Download the image from the URL
@@ -96,23 +113,20 @@ def analyze_image():
         # --- FIX STARTS HERE ---
         # Get the image content and MIME type directly from the response
         image_content = response.content
-        mime_type = response.headers.get('Content-Type')
+        mime_type = response.headers.get("Content-Type")
 
-        if not mime_type or not mime_type.startswith('image/'):
+        if not mime_type or not mime_type.startswith("image/"):
             # Fallback if the content-type is not provided or is not an image
             # Google Static Map API usually returns 'image/png'
-             mime_type = 'image/png'
+            mime_type = "image/png"
 
         # Create the image part for the Gemini API
-        image_part = {
-            "mime_type": mime_type,
-            "data": image_content
-        }
+        image_part = {"mime_type": mime_type, "data": image_content}
         # --- FIX ENDS HERE ---
 
         # --- Call Gemini API ---
-        model = genai.GenerativeModel('gemini-2.5-pro')
-        
+        model = genai.GenerativeModel("gemini-2.5-pro")
+
         # Pass the prompt and the structured image_part to the API
         api_response = model.generate_content([PROMPT, image_part])
 
@@ -120,8 +134,10 @@ def analyze_image():
         response_text = api_response.text
         if response_text.startswith("```json"):
             # A more robust way to strip markdown code blocks
-            response_text = response_text.strip().removeprefix("```json").removesuffix("```")
-        
+            response_text = (
+                response_text.strip().removeprefix("```json").removesuffix("```")
+            )
+
         analysis_result = json.loads(response_text)
 
         return jsonify(analysis_result)
@@ -135,3 +151,4 @@ def analyze_image():
         error_message = f"An error occurred during analysis: {str(e)}"
         print(error_message)
         return jsonify({"error": error_message}), 500
+
