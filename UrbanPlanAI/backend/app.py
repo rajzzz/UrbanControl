@@ -3,20 +3,49 @@ import json
 import requests
 import google.generativeai as genai
 from flask import Flask, request, jsonify, make_response
-from flask_cors import CORS
 from dotenv import load_dotenv
+from PIL import Image
+import io
 
 # Load environment variables from .env file
 load_dotenv()
 
 # --- Configuration ---
 app = Flask(__name__)
-CORS(
-    app, origins="*", methods=["GET", "POST", "OPTIONS"], allow_headers=["Content-Type"]
-)
+
+# --- Gemini API Setup ---
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY not found. Please set it in your .env file.")
+genai.configure(api_key=GEMINI_API_KEY)
+
+# --- Gemini Prompt ---
+PROMPT = """
+You are "UrbanInfra", an AI agent specializing in urban planning and green space development.
+Your task is to analyze a satellite image of an urban or suburban area.
+
+Based on the image, determine if the area is underserved with greenery.
+
+Respond in a strict JSON format. Do not include any text or markdown formatting before or after the JSON object.
+
+1. If the area is UNDERSERVED:
+- Set "status" to "Underserved".
+- Provide a "greenery_score" from 1 (very poor) to 10 (excellent).
+- Provide a single, concise paragraph for "justification".
+- Identify 1 to 3 potential locations for new parks. Focus on barren land, unused plots, or large concrete areas.
+- For each location, provide:
+  - "name": A descriptive name (e.g., "Empty Lot by Elm Street").
+  - "reason": A justification for choosing this spot.
+  - "location_on_image": The approximate location on the image. Choose one from: "top-left", "top-center", "top-right", "center-left", "center", "center-right", "bottom-left", "bottom-center", "bottom-right".
+
+2. If the area has ADEQUATE greenery:
+- Set "status" to "Adequate".
+- Provide a "greenery_score" from 1 to 10.
+- Provide a single, concise "justification" paragraph explaining why new parks are not a high priority (e.g., presence of large parks, tree-lined streets, community gardens).
+"""
 
 
-# --- Force CORS headers manually ---
+# --- CORS: Add headers to every response ---
 @app.after_request
 def add_cors_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "https://urban-infra.vercel.app"
@@ -25,30 +54,24 @@ def add_cors_headers(response):
     return response
 
 
-# --- Gemini Configuration ---
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY not found in .env file.")
-genai.configure(api_key=GEMINI_API_KEY)
-
-# --- Prompt Template ---
-PROMPT = """
-You are "UrbanInfra", an AI agent specializing in urban planning and green space development...
-[TRUNCATED FOR BREVITY – KEEP FULL PROMPT AS BEFORE]
-"""
-
-
-# --- Status Route ---
+# --- Status check route ---
 @app.route("/")
 def status():
     return jsonify({"status": "Backend is running"}), 200
 
 
-# --- Main Image Analyze Endpoint ---
+# --- Analyze route ---
 @app.route("/analyze", methods=["POST", "OPTIONS"])
 def analyze_image():
     if request.method == "OPTIONS":
-        return "", 200
+        # Respond to CORS preflight
+        response = make_response("", 200)
+        response.headers["Access-Control-Allow-Origin"] = (
+            "https://urban-infra.vercel.app"
+        )
+        response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        return response
 
     data = request.get_json()
     if not data or "imageUrl" not in data:
@@ -57,17 +80,17 @@ def analyze_image():
     image_url = data["imageUrl"]
 
     try:
-        # Fetch image
+        # Download the image
         response = requests.get(image_url)
         response.raise_for_status()
-
         image_content = response.content
         mime_type = response.headers.get("Content-Type", "image/png")
 
         if not mime_type.startswith("image/"):
-            return jsonify({"error": "Invalid image type"}), 400
+            return jsonify({"error": "Invalid image MIME type"}), 400
 
-        model = genai.GenerativeModel("gemini-pro-vision")
+        # Generate result using Gemini
+        model = genai.GenerativeModel("gemini-2.5-pro")
         image_part = {"mime_type": mime_type, "data": image_content}
 
         result = model.generate_content([PROMPT, image_part])
@@ -81,6 +104,6 @@ def analyze_image():
         return jsonify({"error": "Internal server error", "details": str(e)}), 500
 
 
-# --- Entry Point ---
+# --- Run locally ---
 if __name__ == "__main__":
     app.run(debug=True)
