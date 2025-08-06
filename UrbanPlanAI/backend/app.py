@@ -77,6 +77,11 @@ Respond in a strict JSON format. Do not include any text or markdown formatting 
 """
 
 # --- API Endpoint ---
+@app.route('/')
+def status():
+    return jsonify({"status": "Backend is running"}), 200
+
+
 @app.route('/analyze', methods=['POST'])
 def analyze_image():
     # Get the image URL from the frontend request
