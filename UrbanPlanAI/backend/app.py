@@ -115,5 +115,3 @@ def analyze_image():
         print(f"An error occurred: {e}")
         return jsonify({"error": "An error occurred during analysis."}), 500
 
-if __name__ == '__main__':
-    app.run(port=5000, debug=True)

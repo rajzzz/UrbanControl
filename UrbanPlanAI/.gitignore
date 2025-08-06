@@ -1,2 +1,11 @@
 backend/.env
-venv
+
+# Python
+__pycache__/
+*.pyc
+venv/
+env/
+
+# OS / Editor
+.DS_Store
+.vscode/
