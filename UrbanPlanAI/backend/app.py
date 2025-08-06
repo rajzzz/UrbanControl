@@ -16,7 +16,8 @@ load_dotenv()
 # --- Configuration ---
 app = Flask(__name__)
 # Allow requests from your frontend's origin
-CORS(app, resources={r"/analyze": {"origins": "http://localhost:8000"}})
+CORS(app, resources={r"/analyze": {"origins": "https://urbaninfra-app.vercel.app"}})
+
 
 # Configure the Gemini API
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
