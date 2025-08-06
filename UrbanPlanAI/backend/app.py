@@ -46,14 +46,8 @@ Respond in a strict JSON format. Do not include any text or markdown formatting 
 - Provide a single, concise "justification" paragraph explaining why new parks are not a high priority (e.g., presence of large parks, tree-lined streets, community gardens).
 """
 
-
 # --- CORS: Add headers to every response ---
-@app.after_request
-def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "https://urban-infra.vercel.app"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    return response
+# @app.after_request
 
 
 # --- Status check route ---
