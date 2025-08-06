@@ -50,6 +50,11 @@ Respond in a strict JSON format. Do not include any text or markdown formatting 
 # @app.after_request
 
 
+@app.before_request
+def log_request_info():
+    print(f"Method: {request.method}, Path: {request.path}")
+
+
 # --- Status check route ---
 @app.route("/")
 def status():
@@ -58,45 +63,13 @@ def status():
 
 # --- analyze route ---
 #
-@app.route("/analyze", methods=["POST"])
-def analyze_post():
+@app.route("/analyze", methods=["POST", "OPTIONS"])
+def analyze():
+    if request.method == "OPTIONS":
+        return "", 204  # Just say OK to preflight
+    # Handle POST normally
     data = request.get_json()
-    if not data or "imageUrl" not in data:
-        return jsonify({"error": "imageUrl not provided"}), 400
-
-    image_url = data["imageUrl"]
-
-    try:
-        # Download the image
-        response = requests.get(image_url)
-        response.raise_for_status()
-        image_content = response.content
-        mime_type = response.headers.get("Content-Type", "image/png")
-
-        if not mime_type.startswith("image/"):
-            return jsonify({"error": "Invalid image MIME type"}), 400
-
-        model = genai.GenerativeModel("gemini-pro-vision")
-        image_part = {"mime_type": mime_type, "data": image_content}
-
-        result = model.generate_content([PROMPT, image_part])
-        parsed = json.loads(result.text.strip())
-
-        return jsonify(parsed), 200
-
-    except requests.RequestException as e:
-        return jsonify({"error": "Failed to fetch image", "details": str(e)}), 400
-    except Exception as e:
-        return jsonify({"error": "Internal server error", "details": str(e)}), 500
-
-
-@app.route("/analyze", methods=["OPTIONS"])
-def analyze_options():
-    response = make_response("", 200)
-    response.headers["Access-Control-Allow-Origin"] = "https://urban-infra.vercel.app"
-    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    return response
+    return jsonify({"message": "Success"}), 200
 
 
 # --- Run locally ---
