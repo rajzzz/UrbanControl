@@ -110,7 +110,7 @@ def analyze_image():
         # --- FIX ENDS HERE ---
 
         # --- Call Gemini API ---
-        model = genai.GenerativeModel('gemini-1.5-pro-latest')
+        model = genai.GenerativeModel('gemini-2.5-pro')
         
         # Pass the prompt and the structured image_part to the API
         api_response = model.generate_content([PROMPT, image_part])
