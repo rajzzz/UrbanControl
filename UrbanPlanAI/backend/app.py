@@ -60,19 +60,10 @@ def status():
     return jsonify({"status": "Backend is running"}), 200
 
 
-# --- Analyze route ---
-@app.route("/analyze", methods=["POST", "OPTIONS"])
-def analyze_image():
-    if request.method == "OPTIONS":
-        # Respond to CORS preflight
-        response = make_response("", 200)
-        response.headers["Access-Control-Allow-Origin"] = (
-            "https://urban-infra.vercel.app"
-        )
-        response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-        return response
-
+# --- analyze route ---
+#
+@app.route("/analyze", methods=["POST"])
+def analyze_post():
     data = request.get_json()
     if not data or "imageUrl" not in data:
         return jsonify({"error": "imageUrl not provided"}), 400
@@ -89,8 +80,7 @@ def analyze_image():
         if not mime_type.startswith("image/"):
             return jsonify({"error": "Invalid image MIME type"}), 400
 
-        # Generate result using Gemini
-        model = genai.GenerativeModel("gemini-2.5-pro")
+        model = genai.GenerativeModel("gemini-pro-vision")
         image_part = {"mime_type": mime_type, "data": image_content}
 
         result = model.generate_content([PROMPT, image_part])
@@ -102,6 +92,15 @@ def analyze_image():
         return jsonify({"error": "Failed to fetch image", "details": str(e)}), 400
     except Exception as e:
         return jsonify({"error": "Internal server error", "details": str(e)}), 500
+
+
+@app.route("/analyze", methods=["OPTIONS"])
+def analyze_options():
+    response = make_response("", 200)
+    response.headers["Access-Control-Allow-Origin"] = "https://urban-infra.vercel.app"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
 
 
 # --- Run locally ---
