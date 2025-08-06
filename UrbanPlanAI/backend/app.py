@@ -16,7 +16,7 @@ load_dotenv()
 
 # --- Configuration ---
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 # Configure the Gemini API
