@@ -13,6 +13,8 @@ load_dotenv()
 # --- Configuration ---
 app = Flask(__name__)
 
+CORS(app, origins=["https://urban-infra.vercel.app"])
+
 # --- Gemini API Setup ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
