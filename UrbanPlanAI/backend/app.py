@@ -16,7 +16,7 @@ load_dotenv()
 
 # --- Configuration ---
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/analyze": {"origins": "https://urban-infra.vercel.app"}}, supports_credentials=True)
 
 
 # Configure the Gemini API
