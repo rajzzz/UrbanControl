@@ -16,7 +16,7 @@ load_dotenv()
 
 # --- Configuration ---
 app = Flask(__name__)
-CORS(app)
+
 
 # Configure the Gemini API
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
